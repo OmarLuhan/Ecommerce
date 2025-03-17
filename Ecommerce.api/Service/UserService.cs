@@ -8,57 +8,76 @@ namespace Ecommerce.api.Service;
 
 public interface IUserService
 {
-    Task<List<UserDto>> List(string role,string search);
-    Task<UserDto> GetUser(Guid id);
-    Task<SessionDto>Authorize(LoginDto model);
-    Task<UserDto>Create(UserDto model);
-    Task<bool>Update(UserDto model);
-    Task<bool>Delete(Guid id);
+    Task<List<UserDto>> ListAsync(string role,string search);
+    Task<UserDto> GetUserAsync(int id);
+    Task<SessionDto>AuthorizeAsync(LoginDto model);
+    Task<UserDto>CreateAsync(UserDto model);
+    Task<bool>UpdateAsync(UserDto model);
+    Task<bool>DeleteAsync(int id);
 }
 public class UserService(IGenericRepository<User> userRepository,IMapper mapper):IUserService
 {
-    private readonly IGenericRepository<User> _userRepository = userRepository;
-    private readonly IMapper _mapper = mapper;
-    
-    public Task<List<UserDto>> List(string role, string search)
+    public Task<List<UserDto>> ListAsync(string role, string search)
     {
-        throw new NotImplementedException();
+        IQueryable<User> query = userRepository.Query();
+        if(!string.IsNullOrEmpty(role))
+            query = query.Where(u=>u.Role==role);
+        if(!string.IsNullOrEmpty(search))
+            query = query.Where(u=>u.FullName.Contains(search) || u.Email.Contains(search));
+        return mapper.ProjectTo<UserDto>(query).ToListAsync();
     }
 
-    public Task<UserDto> GetUser(Guid id)
+    public async Task<UserDto> GetUserAsync(int id)
     {
-        throw new NotImplementedException();
+        IQueryable<User> query= userRepository.Query(u=>u.Id==id);
+        User? user = await query.FirstOrDefaultAsync();
+        if(user==null)
+            throw new TaskCanceledException("User not found");
+        return mapper.Map<UserDto>(user);
     }
 
-    public async Task<SessionDto> Authorize(LoginDto model)
+    public async Task<SessionDto> AuthorizeAsync(LoginDto model)
     {
-        try
-        {
-            IQueryable<User> query= _userRepository.Query(u=>u.Email==model.Email && u.Password==model.Password);
-            User? user = await query.FirstOrDefaultAsync();
-            if(user==null)
-            {
-                throw new Exception("Invalid email or password");
-            } 
-            return _mapper.Map<SessionDto>(user);
-        }catch(Exception ex)
-        {
-            throw new Exception(ex.Message);
-        }
+        IQueryable<User> query= userRepository.Query(u=>u.Email==model.Email && u.Password==model.Password);
+        User? user = await query.FirstOrDefaultAsync();
+        if(user==null)
+            throw new TaskCanceledException("Invalid email or password");
+        return mapper.Map<SessionDto>(user);
     }
 
-    public Task<UserDto> Create(UserDto model)
+    public async Task<UserDto> CreateAsync(UserDto model)
     {
-        throw new NotImplementedException();
+       User user = mapper.Map<User>(model);
+       User? newUser = await userRepository.CreateAsync(user);
+       if(newUser.Id == 0)
+            throw new TaskCanceledException("Failed to create user");
+       return mapper.Map<UserDto>(newUser);
     }
 
-    public Task<bool> Update(UserDto model)
+    public async Task<bool> UpdateAsync(UserDto model)
     {
-        throw new NotImplementedException();
+        IQueryable<User> query = userRepository.Query(u=>u.Id==model.Id);
+        User? user = await query.FirstOrDefaultAsync();
+        if(user==null)
+            throw new TaskCanceledException("User not found");
+        user.FullName=model.FullName;
+        user.Email=model.Email;
+        user.Password=model.Password;
+        bool updated = await userRepository.UpdateAsync(user);
+        if(!updated)
+            throw new TaskCanceledException("Failed to update user");
+        return updated;
     }
 
-    public Task<bool> Delete(Guid id)
+    public async Task<bool> DeleteAsync(int id)
     {
-        throw new NotImplementedException();
+        IQueryable<User> query = userRepository.Query(u=>u.Id==id);
+        User? user = await query.FirstOrDefaultAsync();
+        if(user==null)
+            throw new TaskCanceledException("User not found");
+        bool deleted = await userRepository.DeleteAsync(user);
+        if(!deleted)
+            throw new TaskCanceledException("Failed to delete user");
+        return deleted;
     }
 }
