@@ -17,14 +17,14 @@ public interface IUserService
 }
 public class UserService(IGenericRepository<User> userRepository,IMapper mapper):IUserService
 {
-    public Task<List<UserDto>> ListAsync(string role, string search)
+    public async Task<List<UserDto>> ListAsync(string role, string search)
     {
         IQueryable<User> query = userRepository.Query();
         if(!string.IsNullOrEmpty(role))
             query = query.Where(u=>u.Role==role);
         if(!string.IsNullOrEmpty(search))
             query = query.Where(u=>u.FullName.Contains(search) || u.Email.Contains(search));
-        return mapper.ProjectTo<UserDto>(query).ToListAsync();
+        return mapper.Map<List<UserDto>>(await query.ToListAsync());
     }
 
     public async Task<UserDto> GetUserAsync(int id)
