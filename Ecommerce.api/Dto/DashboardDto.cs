@@ -2,8 +2,8 @@ namespace Ecommerce.api.Dto;
 
 public class DashboardDto
 {
-    public string TotalIncome { get; set; } = null!;
-    public int TotalSales { get; set; }
-    public int TotalProducts { get; set; }
-    public int TotalUsers { get; set; }
+    public string Income { get; set; } = null!;
+    public int Sales { get; set; }
+    public int Products { get; set; }
+    public int Customers { get; set; }
 }
