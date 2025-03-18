@@ -36,7 +36,7 @@ public class CategoryService(IGenericRepository<Category> categoryRepository, IM
     public async Task<CategoryDto> CreateAsync(CategoryDto model)
     {
         Category category= mapper.Map<Category>(model);
-        Category? newCategory = await categoryRepository.CreateAsync(category);
+        Category newCategory = await categoryRepository.CreateAsync(category);
         if(newCategory.Id == 0)
             throw new TaskCanceledException("Failed to create category");
         return mapper.Map<CategoryDto>(newCategory);

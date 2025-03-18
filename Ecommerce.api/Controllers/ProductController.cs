@@ -10,6 +10,8 @@ namespace Ecommerce.api.Controllers;
 public class ProductController(IProductService service) : ControllerBase
 {
    [HttpGet("List/{search:alpha?}")]
+   [ProducesResponseType(StatusCodes.Status200OK)]
+   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
    public async Task<ActionResult<Response<List<ProductDto>>>> GetProducts(string search = "NA")
    {
       var response = new Response<List<ProductDto>>();

@@ -48,7 +48,7 @@ public class UserService(IGenericRepository<User> userRepository,IMapper mapper)
     public async Task<UserDto> CreateAsync(UserDto model)
     {
        User user = mapper.Map<User>(model);
-       User? newUser = await userRepository.CreateAsync(user);
+       User newUser = await userRepository.CreateAsync(user);
        if(newUser.Id == 0)
             throw new TaskCanceledException("Failed to create user");
        return mapper.Map<UserDto>(newUser);
