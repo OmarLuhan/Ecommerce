@@ -19,5 +19,11 @@ public static class Injects
         services.AddScoped<ISaleService, SaleService>();
         services.AddScoped<ICategoryService,CategoryService>();
         services.AddAutoMapper(typeof(AutoMapperProfile));
+        services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>
+        {
+            builder.AllowAnyMethod()
+                .AllowAnyHeader()
+                .WithOrigins("http://localhost:5036");
+        }));
     }
 }
