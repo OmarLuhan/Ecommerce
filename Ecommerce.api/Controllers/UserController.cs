@@ -10,7 +10,7 @@ namespace Ecommerce.api.Controllers;
 [ApiController]
 public class UserController(IUserService service) : ControllerBase
 {
-    [HttpGet("List/{role:alpha}/{search:alpha?}")]
+    [HttpGet("list/{role:alpha}/{search:alpha?}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Response<List<UserDto>>>> List(string role, string search = "NA")
@@ -31,7 +31,7 @@ public class UserController(IUserService service) : ControllerBase
             return StatusCode(500, response);
         }
     }
-    [HttpGet("Get/{id:int}")]
+    [HttpGet("get/{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Response<UserDto>>> Get(int id)
@@ -52,7 +52,7 @@ public class UserController(IUserService service) : ControllerBase
             return StatusCode(500, response);
         }
     }
-    [HttpPost("Add")]
+    [HttpPost("add")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Response<UserDto>>> Add([FromBody]UserDto user)
@@ -74,7 +74,7 @@ public class UserController(IUserService service) : ControllerBase
         }
     }
 
-    [HttpPost("Authorize")]
+    [HttpPost("authorize")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Response<SessionDto>>> Authorize([FromBody] LoginDto login)
@@ -96,46 +96,45 @@ public class UserController(IUserService service) : ControllerBase
             return StatusCode(500, response);
         }
     }
-    [HttpPut("Update")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [HttpPut("update")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Update([FromBody] UserDto user)
+    public async Task<ActionResult<Response<bool>>> Update([FromBody] UserDto user)
     {
+        var response = new Response<bool>();
         try
         {
-            _ =await service.UpdateAsync(user);
-            return NoContent();
+            response.Status = HttpStatusCode.NoContent;
+            response.Success = true;
+            response.Data=await service.UpdateAsync(user);
+            return Ok(response);
         }
         catch (Exception ex)
         {
-            var response = new Response<UserDto>
-            {
-                Status = HttpStatusCode.InternalServerError,
-                Message = ex.Message,
-                Success = false
-            };
+            response.Message=ex.Message;
+            response.Status= HttpStatusCode.InternalServerError;
             return StatusCode(500, response);
         }
     }
     
-    [HttpDelete("Delete/{id:int}")]
+    [HttpDelete("delete/{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<ActionResult<Response<bool>>> Delete(int id)
     {
+        var response = new Response<bool>();
         try
         {
-            _ =await service.DeleteAsync(id);
-            return NoContent();
+            response.Status = HttpStatusCode.NoContent;
+            response.Success = true;
+            response.Data=await service.DeleteAsync(id);
+            return Ok(response);
         }
         catch (Exception ex)
         {
-            var response = new Response<UserDto>
-            {
-                Status = HttpStatusCode.InternalServerError,
-                Message = ex.Message,
-                Success = false
-            };
+            response.Message=ex.Message;
+            response.Success = false;
+            response.Status= HttpStatusCode.InternalServerError;
             return StatusCode(500, response);
         }
     }

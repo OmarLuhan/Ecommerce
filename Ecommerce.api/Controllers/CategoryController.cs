@@ -9,13 +9,13 @@ namespace Ecommerce.api.Controllers;
 [Route("api/[controller]")]
 public class CategoryController(ICategoryService service) : ControllerBase
 {
-    [HttpGet("list/{search:alpha?}")]
+    [HttpGet("list/")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Response<List<CategoryDto>>>> ListAsync(string search = "NA")
+    public async Task<ActionResult<Response<List<CategoryDto>>>> ListAsync(string? search = null)
     {
         var response = new Response<List<CategoryDto>>();
-        if (search == "NA") search = "";
+        search ??= "";
         try
         {
             response.Status = HttpStatusCode.OK;
@@ -31,7 +31,7 @@ public class CategoryController(ICategoryService service) : ControllerBase
             return StatusCode(500, response);
         }
     }
-    [HttpGet("Get/{id:int}")]
+    [HttpGet("get/{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Response<CategoryDto>>> Get(int id)
@@ -74,44 +74,43 @@ public class CategoryController(ICategoryService service) : ControllerBase
         }
     }
     [HttpPut("update")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UpdateAsync([FromBody] CategoryDto category)
+    public async Task<ActionResult<Response<bool>>> UpdateAsync([FromBody] CategoryDto category)
     {
+        var response = new Response<bool>();
         try
         {
-            _ = await service.UpdateAsync(category);
+            response.Data= await service.UpdateAsync(category);
             return NoContent();
         }
         catch (Exception ex)
         {
-            var response = new Response<CategoryDto>()
-            {
-                Status = HttpStatusCode.InternalServerError,
-                Message = ex.Message,
-                Success = false
-            };
+            response.Status = HttpStatusCode.InternalServerError;
+            response.Message = ex.Message;
+            response.Success = false;
             return StatusCode(500, response);
         }
     }
     [HttpDelete("delete/{id:int}")]
-    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeleteAsync(int id)
+    public async Task<ActionResult<Response<bool>>> DeleteAsync(int id)
     {
+        var response = new Response<bool>();
         try
         {
-            _ = await service.DeleteAsync(id);
-            return NoContent();
+            response.Status = HttpStatusCode.NoContent;
+            response.Success = true;
+            response.Data= await service.DeleteAsync(id);
+            return Ok(response);
         }
         catch (Exception ex)
         {
-            var response = new Response<CategoryDto>()
-            {
-                Status = HttpStatusCode.InternalServerError,
-                Message = ex.Message,
-                Success = false
-            };
+
+            response.Status = HttpStatusCode.InternalServerError;
+            response.Message = ex.Message;
+            response.Success = false;
             return StatusCode(500, response);
         }
     }

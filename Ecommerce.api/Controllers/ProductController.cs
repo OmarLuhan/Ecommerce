@@ -9,13 +9,13 @@ namespace Ecommerce.api.Controllers;
 [Route("api/[controller]")]
 public class ProductController(IProductService service) : ControllerBase
 {
-   [HttpGet("List/{search:alpha?}")]
+   [HttpGet("List")]
    [ProducesResponseType(StatusCodes.Status200OK)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-   public async Task<ActionResult<Response<List<ProductDto>>>> GetProducts(string search = "NA")
+   public async Task<ActionResult<Response<List<ProductDto>>>> GetProducts(string? search = null)
    {
       var response = new Response<List<ProductDto>>();
-      if (search == "NA") search = "";
+      search??="";
       try
       {
          response.Status = HttpStatusCode.OK;

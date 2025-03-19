@@ -25,8 +25,7 @@ public class ProductService(IGenericRepository<Product> productRepository,IMappe
     public async Task<List<ProductDto>> CatalogAsync(string category, string search)
     {
         IQueryable<Product> query= productRepository.Query(p=>p.Name.Contains(search) &&
-                                                              p.Category != null &&
-                                                              p.Category.Name.Contains(category));
+                                                              p.Category!.Name.Contains(category));
         return mapper.Map<List<ProductDto>>(await query.ToListAsync());
     }
 
