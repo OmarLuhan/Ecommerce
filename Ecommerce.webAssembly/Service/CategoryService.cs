@@ -13,11 +13,13 @@ public interface ICategoryService
 }
 public class CategoryService(HttpClient httpClient):ICategoryService
 {
-    public async Task<Response<List<CategoryDto>>> ListAsync(string search)
+    public async Task<Response<List<CategoryDto>>> ListAsync(string? search = null)
     {
-        var response = await httpClient.GetFromJsonAsync<Response<List<CategoryDto>>>($"category/list?search={Uri.EscapeDataString(search)}");
+        string query = string.IsNullOrWhiteSpace(search) ? "" : $"?search={Uri.EscapeDataString(search)}";
+        var response = await httpClient.GetFromJsonAsync<Response<List<CategoryDto>>>($"category/list{query}");
         return response;
     }
+
 
 
     public async Task<Response<CategoryDto>> GetCategoryAsync(int id)
