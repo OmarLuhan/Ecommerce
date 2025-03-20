@@ -6,3 +6,5 @@ appsettings.Development.json
 *.user
 *.sln.cache
 *.vs/
+*/wwwroot/css/app.min.css
+*/node_modules/
