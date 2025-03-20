@@ -1,7 +1,96 @@
 @page "/users"
+@using Blazored.Toast.Services
+@using Ecommerce.webAssembly.Dto
+@using Ecommerce.webAssembly.Service
 @layout MainLayout
-<h3>Users</h3>
+@inject IUserService UserService
+@inject IToastService ToastService
+@inject SweetAlertService SweetAlertService
+
+<div class="flex justify-center mt-3">
+    <div class="w-full max-w-xs md:max-w-sm xl:max-w-xs mb-4">
+        <div class="grid gap-1 w-full mx-auto">
+            <a class="btn btn-primary" href="/user">New user</a>
+        </div>
+    </div>
+    <div class="w-full md:max-w-md xl:max-w-lg mb-4">
+        <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+            <input type="text" class="flex-grow px-3 py-2 outline-none" placeholder="Search User..." @bind-value="_search">
+            <button class="px-4 py-2 border-l border-gray-300 text-gray-600 hover:bg-gray-200" type="button" @onclick="async()=> await LoadUsers(_search)">
+                <i class="oi oi-magnifying-glass"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 mt-2">
+    @foreach (var item in _users)
+    {
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="p-4 text-center">
+                <i class="oi oi-person text-5xl"></i>
+            </div>
+            <div class="p-4">
+                <p class="m-1"><b>Name: </b>@item.FullName</p>
+                <p class="m-1"><b>Email: </b>@item.Email</p>
+            </div>
+            <div class="bg-transparent p-4 flex justify-between">
+                <a class="btn btn-sm btn-outline-primary flex items-center justify-center w-10 h-10" href="/users/@item.Id">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 3.487a2.25 2.25 0 1 1 3.182 3.182L7.37 19.344a4.5 4.5 0 0 1-1.949 1.136l-3.014.753a.375.375 0 0 1-.46-.46l.753-3.014a4.5 4.5 0 0 1 1.136-1.949L16.862 3.487z" />
+                    </svg>
+                </a>
+                <button class="btn btn-sm btn-outline-danger flex items-center justify-center w-10 h-10" type="button" @onclick="async () => await DeleteUser(item.Id)">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+
 
 @code {
-    
+    private List<UserDto> _users = [];
+    private const string Role = "admin";
+    private string _search="";
+    private async Task LoadUsers(string value="")
+    {
+        var response = await UserService.ListAsync(Role,value);
+        _users = response.Success ? response.Data! : [];
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUsers();
+    }
+    private async Task DeleteUser(int id)
+    {
+        var result = await SweetAlertService.FireAsync(new SweetAlertOptions
+        {
+            Title = "Are you sure?",
+            Text = "Once deleted, you will not be able to recover this user!",
+            Icon = SweetAlertIcon.Warning,
+            ShowCancelButton = true,
+            ConfirmButtonText = "Yes, delete it!",
+            CancelButtonText = "No, cancel!",
+            ConfirmButtonColor = "#d33",
+            CancelButtonColor = "#3085d6"
+        });
+
+        if (result.IsConfirmed)
+        {
+            var response = await UserService.DeleteAsync(id);
+            if (response.Success)
+            {
+                await LoadUsers();
+                ToastService.ShowSuccess("User deleted successfully");
+            }
+            else
+            {
+                ToastService.ShowError(response.Message?? "An error occurred");
+            }
+        }
+    }
 }
