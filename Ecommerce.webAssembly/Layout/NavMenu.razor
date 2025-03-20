@@ -1,32 +1,38 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Ecommerce.webAssembly</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+﻿<nav class="bg-gray-100 border-b border-gray-300">
+    <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center py-3">
+            <a class="text-lg font-semibold" href="#">Ecommerce</a>
+            
+            <button type="button" class="block md:hidden text-gray-700" @click="ToggleNavMenu">
+                <span class="material-icons">menu</span>
+            </button>
+            
+            <div class="hidden md:flex flex-grow justify-between items-center">
+                <ul class="flex space-x-4">
+                    <li><NavLink class="text-gray-700 hover:text-gray-900" href="dashboard">Dashboard</NavLink></li>
+                    <li><NavLink class="text-gray-700 hover:text-gray-900" href="users">Users</NavLink></li>
+                    <li><NavLink class="text-gray-700 hover:text-gray-900" href="categories">Categories</NavLink></li>
+                    <li><NavLink class="text-gray-700 hover:text-gray-900" href="products">Products</NavLink></li>
+                    <li><NavLink class="text-gray-700 hover:text-gray-900" href="catalog">Store</NavLink></li>
+                </ul>
+                
+                <div class="flex items-center space-x-4">
+                    <span class="text-gray-700">admins@example.com</span>
+                    
+                    <a class="flex items-center border border-gray-700 text-gray-700 px-3 py-1 rounded hover:bg-gray-700 hover:text-white" href="/cart">
+                        <i class="bi-cart-fill mr-1"></i>
+                        Cart
+                        <span class="ml-1 bg-gray-700 text-white px-2 py-0.5 rounded-full">0</span>
+                    </a>
+                    
+                    <button class="border border-gray-700 text-gray-700 px-3 py-1 rounded hover:bg-gray-700 hover:text-white">Salir</button>
+                    
+                    <a class="border border-gray-700 text-gray-700 px-3 py-1 rounded hover:bg-gray-700 hover:text-white" href="/login">Iniciar sesión</a>
+                </div>
+            </div>
+        </div>
     </div>
-</div>
-
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
-</div>
-
+</nav>
 @code {
     private bool collapseNavMenu = true;
 

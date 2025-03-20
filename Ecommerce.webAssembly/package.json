@@ -5,7 +5,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tailwindcss-cli -i wwwroot/css/app.css -o wwwroot/css/app.min.css",
-    "watch": "npx tailwindcss-cli -i wwwroot/css/app.css -o wwwroot/css/app.min.css --watch"
+    "dev": "npx tailwindcss-cli -i wwwroot/css/app.css -o wwwroot/css/app.min.css --watch"
   },
   "keywords": [],
   "author": "",
