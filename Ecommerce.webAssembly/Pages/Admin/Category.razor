@@ -1,8 +1,108 @@
 @page "/category"
 @page "/category/{id:int}"
 
-<h3>Category</h3>
+@inject ICategoryService CategoryService
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+
+<div class="flex justify-center mt-3">
+    <p class="w-full sm:w-4/5 xl:w-3/4 text-xl font-semibold mt-2">@Title</p>
+</div>
+
+<div class="flex justify-center mt-3">
+    <div class="w-full sm:w-4/5 xl:w-3/4 bg-white p-6 rounded-lg shadow-md">
+
+        <EditForm Model="Model" OnValidSubmit="SaveCategoryAsync">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium">Name</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" @bind-value="Model.Name">
+                <ValidationMessage For="@(()=>Model.Name)" class="text-red-500 text-sm" />
+            </div>
+
+            <!-- Botones -->
+            <div class="flex justify-between mt-4">
+                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+                    @ButtonText
+                </button>
+                <a href="/categories" class="bg-gray-400 text-white px-6 py-2 rounded-lg hover:bg-gray-500 transition">
+                    Back
+                </a>
+            </div>
+        </EditForm>
+
+    </div>
+</div>
 
 @code {
+    [Parameter] 
+    public int Id { get; set; }
+    private string Title { get; set; } = "New Category";
+    private string ButtonText { get; set; } = "Save";
+    private CategoryDto Model { get; set; } = new();
     
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != 0)
+        {
+            Title = "Edit User";
+            ButtonText = "Update";
+            var response = await CategoryService.GetCategoryAsync(Id);
+            if (response!.Success)
+            {
+                Model = response.Data!;
+            }
+            else
+            {
+                ToastService.ShowError(response.Message ?? "An error occurred");
+            }
+        }
+    }
+    private async Task SaveCategoryAsync()
+    {
+        bool result = true;
+        string message;
+        if (Id != 0)
+        {
+            var response = await CategoryService.UpdateAsync(Model);
+            if(response!.Success)
+            {
+                message = "Category updated successfully";
+            }
+            else
+            {
+                message = response.Message?? "An error occurred";
+                result = false;
+            }
+        }
+        else
+        {
+            if(string.IsNullOrEmpty(Model.Name)) 
+            {
+                ToastService.ShowWarning("Name is required");
+                return;
+            }
+            var response = await CategoryService.CreateAsync(Model);
+            if(response!.Success)
+            {
+                message = "Category created successfully";
+            }
+            else
+            {
+                message = response.Message?? "An error occurred";
+                result = false;
+            }
+        }
+
+        if (result)
+        {
+            ToastService.ShowSuccess(message);
+            NavigationManager.NavigateTo("/categories");
+        }
+        else
+        {
+            ToastService.ShowError(message);
+        }
+    }
 }

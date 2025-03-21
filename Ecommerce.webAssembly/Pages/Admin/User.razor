@@ -1,8 +1,6 @@
 @page "/user"
 @page "/user/{id:int}"
 
-@using Ecommerce.webAssembly.Dto
-@using Ecommerce.webAssembly.Service
 @inject IUserService UserService
 @inject IToastService ToastService
 @inject NavigationManager NavigationManager
@@ -69,8 +67,8 @@
     {
         if (Id != 0)
         {
-            Title="Edit User";
-            ButtonText="Update";
+            Title = "Edit User";
+            ButtonText = "Update";
             var response = await UserService.GetUserAsync(Id);
             if (response!.Success)
             {
@@ -79,21 +77,20 @@
             }
             else
             {
-                ToastService.ShowError(response!.Message?? "An error occurred");
+                ToastService.ShowError(response.Message ?? "An error occurred");
             }
-            
         }
     }
     private async Task SaveUserAsync()
     {
         if(Model.Password!=Model.ConfirmPassword)
         {
-            ToastService.ShowError("Password and Confirm Password do not match");
+            ToastService.ShowWarning("Password and Confirm Password do not match");
             return;
         }
 
         bool result = true;
-        string message = "";
+        string message;
         if (Id != 0)
         {
             var response = await UserService.UpdateAsync(Model);
@@ -129,7 +126,7 @@
         }
         else
         {
-            ToastService.ShowWarning(message);
+            ToastService.ShowError(message);
         }
     }
 }

@@ -1,46 +1,47 @@
 ﻿<nav class="bg-gray-100 border-b border-gray-300">
     <div class="container mx-auto px-4">
-        <div class="flex justify-between items-center py-3">
-            <a class="text-lg font-semibold" href="#">Ecommerce</a>
-            
+        <div class="flex justify-between items-center py-4">
+            <a class="text-lg font-semibold mr-6" href="#">Ecommerce</a> <!-- Agregué mr-6 para separación -->
+
             <button type="button" class="block md:hidden text-gray-700" @click="ToggleNavMenu">
                 <span class="material-icons">menu</span>
             </button>
-            
+
             <div class="hidden md:flex flex-grow justify-between items-center">
-                <ul class="flex space-x-4">
+                <ul class="flex space-x-6"> <!-- Aumenté space-x-6 para más separación entre opciones -->
                     <li><NavLink class="text-gray-700 hover:text-gray-900" href="dashboard">Dashboard</NavLink></li>
                     <li><NavLink class="text-gray-700 hover:text-gray-900" href="users">Users</NavLink></li>
                     <li><NavLink class="text-gray-700 hover:text-gray-900" href="categories">Categories</NavLink></li>
                     <li><NavLink class="text-gray-700 hover:text-gray-900" href="products">Products</NavLink></li>
                     <li><NavLink class="text-gray-700 hover:text-gray-900" href="catalog">Store</NavLink></li>
                 </ul>
-                
+
                 <div class="flex items-center space-x-4">
                     <span class="text-gray-700">admins@example.com</span>
-                    
+
                     <a class="flex items-center border border-gray-700 text-gray-700 px-3 py-1 rounded hover:bg-gray-700 hover:text-white" href="/cart">
                         <i class="bi-cart-fill mr-1"></i>
                         Cart
                         <span class="ml-1 bg-gray-700 text-white px-2 py-0.5 rounded-full">0</span>
                     </a>
-                    
-                    <button class="border border-gray-700 text-gray-700 px-3 py-1 rounded hover:bg-gray-700 hover:text-white">Salir</button>
-                    
-                    <a class="border border-gray-700 text-gray-700 px-3 py-1 rounded hover:bg-gray-700 hover:text-white" href="/login">Iniciar sesión</a>
+
+                    <button class="border border-gray-700 text-gray-700 px-3 py-1 rounded hover:bg-gray-700 hover:text-white">Exit</button>
+
+                    <a class="border border-gray-700 text-gray-700 px-3 py-1 rounded hover:bg-gray-700 hover:text-white" href="/login">Login</a>
                 </div>
             </div>
         </div>
     </div>
 </nav>
-@code {
-    private bool collapseNavMenu = true;
 
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+@code {
+    private bool _collapseNavMenu = true;
+
+    private string? NavMenuCssClass => _collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
-        collapseNavMenu = !collapseNavMenu;
+        _collapseNavMenu = !_collapseNavMenu;
     }
 
 }
