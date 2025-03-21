@@ -82,7 +82,10 @@ public class CategoryController(ICategoryService service) : ControllerBase
         try
         {
             response.Data= await service.UpdateAsync(category);
-            return NoContent();
+            response.Status = HttpStatusCode.OK;
+            response.Success = true;
+            
+            return Ok(response);
         }
         catch (Exception ex)
         {

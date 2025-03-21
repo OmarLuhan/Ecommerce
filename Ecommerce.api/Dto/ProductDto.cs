@@ -17,6 +17,4 @@ public class ProductDto
     public int Stock { get; set; }
 
     public string? Image { get; set; }
-
-    public virtual CategoryDto? Category { get; set; }
 }

@@ -5,7 +5,7 @@ using Ecommerce.webAssembly.Helpers;
 namespace Ecommerce.webAssembly.Service;
 public interface ICategoryService
 {
-    Task<Response<List<CategoryDto>>?> ListAsync(string search);
+    Task<Response<List<CategoryDto>>?> ListAsync(string? search=null);
     Task<Response<CategoryDto>?> GetCategoryAsync(int id);
     Task<Response<CategoryDto>?> CreateAsync(CategoryDto model);
     Task<Response<bool>?> UpdateAsync(CategoryDto model);
