@@ -23,7 +23,7 @@ public static class Injects
         {
             builder.AllowAnyMethod()
                 .AllowAnyHeader()
-                .WithOrigins("http://localhost:5036");
+                .WithOrigins("http://localhost:5036","https://localhost:7067");
         }));
     }
 }

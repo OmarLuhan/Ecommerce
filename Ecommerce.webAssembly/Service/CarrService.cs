@@ -27,7 +27,7 @@ public class CarrService(ILocalStorageService localStorageService,
       try
       {
          var carrList = await localStorageService.GetItemAsync<List<CarrDto>>("carr") ?? [];
-         var existingItem = carrList.FirstOrDefault(x => x.Product.Id==item.Product.Id);
+         var existingItem = carrList.FirstOrDefault(x => x.Product!.Id==item.Product!.Id);
          if (existingItem != null)
          {
             carrList.Remove(existingItem);
@@ -49,7 +49,7 @@ public class CarrService(ILocalStorageService localStorageService,
          var carrList = await localStorageService.GetItemAsync<List<CarrDto>>("carr") ?? [];
          CarrDto? existingItem = null;
        if(carrList.Count!=0)
-          existingItem = carrList.FirstOrDefault(x => x.Product.Id==item.Product.Id);
+          existingItem = carrList.FirstOrDefault(x => x.Product!.Id==item.Product!.Id);
        
          if (existingItem != null)
          {

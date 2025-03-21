@@ -1,8 +1,135 @@
 @page "/user"
 @page "/user/{id:int}"
-@layout MainLayout
-<h3>User</h3>
+
+@using Ecommerce.webAssembly.Dto
+@using Ecommerce.webAssembly.Service
+@inject IUserService UserService
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+
+<div class="flex justify-center mt-3">
+    <p class="text-xl font-semibold mt-2 text-center">@Title</p>
+</div>
+
+<div class="flex justify-center mt-3">
+    <div class="w-full max-w-xl bg-white shadow-md rounded-lg p-6">
+        <EditForm Model="Model" OnValidSubmit="SaveUserAsync">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+
+            <!-- Nombre Completo -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium">Full name</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" @bind-value="Model.FullName">
+                <ValidationMessage For="@(()=>Model.FullName)" class="text-red-500 text-sm" />
+            </div>
+
+            <!-- Correo -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium">Email</label>
+                <input type="text" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" @bind-value="Model.Email">
+                <ValidationMessage For="@(()=>Model.Email)" class="text-red-500 text-sm" />
+            </div>
+
+            <!-- Contraseña -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium">Password</label>
+                <input type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" @bind-value="Model.Password">
+                <ValidationMessage For="@(()=>Model.Password)" class="text-red-500 text-sm" />
+            </div>
+
+            <!-- Confirmar Contraseña -->
+            <div class="mb-4">
+                <label class="block text-gray-700 font-medium">Confirm Password</label>
+                <input type="password" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-blue-500" @bind-value="Model.ConfirmPassword">
+                <ValidationMessage For="@(()=>Model.ConfirmPassword)" class="text-red-500 text-sm" />
+            </div>
+
+            <!-- Botones -->
+            <div class="flex justify-between mt-4">
+                <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-lg hover:bg-blue-600 transition">
+                    @ButtonText
+                </button>
+                <a href="/users" class="bg-gray-400 text-white px-6 py-2 rounded-lg hover:bg-gray-500 transition">
+                    Back
+                </a>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
 
 @code {
-    
+    [Parameter] 
+    public int Id { get; set; }
+    private string Title { get; set; } = "New User";
+    private string ButtonText { get; set; } = "Save";
+    private UserDto Model { get; set; } = new();
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Id != 0)
+        {
+            Title="Edit User";
+            ButtonText="Update";
+            var response = await UserService.GetUserAsync(Id);
+            if (response!.Success)
+            {
+                Model = response.Data!;
+                Model.Password = Model.ConfirmPassword;
+            }
+            else
+            {
+                ToastService.ShowError(response!.Message?? "An error occurred");
+            }
+            
+        }
+    }
+    private async Task SaveUserAsync()
+    {
+        if(Model.Password!=Model.ConfirmPassword)
+        {
+            ToastService.ShowError("Password and Confirm Password do not match");
+            return;
+        }
+
+        bool result = true;
+        string message = "";
+        if (Id != 0)
+        {
+            var response = await UserService.UpdateAsync(Model);
+            if(response!.Success)
+            {
+                message = "User updated successfully";
+            }
+            else
+            {
+                message = response.Message?? "An error occurred";
+                result = false;
+            }
+        }
+        else
+        {
+            Model.Role = "admin";
+            var response = await UserService.CreateAsync(Model);
+            if(response!.Success)
+            {
+                message = "User created successfully";
+            }
+            else
+            {
+                message = response.Message?? "An error occurred";
+                result = false;
+            }
+        }
+
+        if (result)
+        {
+            ToastService.ShowSuccess(message);
+            NavigationManager.NavigateTo("/users");
+        }
+        else
+        {
+            ToastService.ShowWarning(message);
+        }
+    }
 }
