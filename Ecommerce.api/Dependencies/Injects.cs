@@ -17,6 +17,7 @@ public static class Injects
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<ISaleService, SaleService>();
+        services.AddScoped<IDashboardService, DashboardService>();
         services.AddScoped<ICategoryService,CategoryService>();
         services.AddAutoMapper(typeof(AutoMapperProfile));
         services.AddCors(options => options.AddPolicy("CorsPolicy", builder =>

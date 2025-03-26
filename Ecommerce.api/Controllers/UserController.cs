@@ -10,15 +10,15 @@ namespace Ecommerce.api.Controllers;
 [ApiController]
 public class UserController(IUserService service) : ControllerBase
 {
-    [HttpGet("list/{role:alpha}/{search:alpha?}")]
+    [HttpGet("list/{role:alpha}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Response<List<UserDto>>>> List(string role, string search = "NA")
+    public async Task<ActionResult<Response<List<UserDto>>>> List(string role, string? search =null )
     {
         var response = new Response<List<UserDto>>();
         try
         {
-            if (search == "NA") search = "";
+            search??="";
             response.Status= HttpStatusCode.OK;
             response.Success = true;
             response.Data = await service.ListAsync(role, search);

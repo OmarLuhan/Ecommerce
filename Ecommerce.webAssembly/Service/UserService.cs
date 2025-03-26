@@ -17,7 +17,8 @@ public class UserService(HttpClient httpClient):IUserService
 {
     public async Task<Response<List<UserDto>>?> ListAsync(string role, string search)
     {
-        var response = await httpClient.GetFromJsonAsync<Response<List<UserDto>>>($"user/list/{role}/{search}");
+        string query = string.IsNullOrWhiteSpace(search) ? "" : $"?search={Uri.EscapeDataString(search)}";
+        var response = await httpClient.GetFromJsonAsync<Response<List<UserDto>>>($"user/list/{role}/{query}");
         return response;
     }
 

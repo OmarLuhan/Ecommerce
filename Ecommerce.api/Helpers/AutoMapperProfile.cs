@@ -13,7 +13,8 @@ public class AutoMapperProfile:Profile
 
         CreateMap<Category, CategoryDto>().ReverseMap();
 
-        CreateMap<Product, ProductDto>();
+        CreateMap<Product, ProductDto>().ForMember(dest=>dest.CategoryName,
+            opt=>opt.MapFrom(src=>src.Category!.Name));
         CreateMap<ProductDto, Product>().ForMember(dest=>dest.CategoryId,
             opt=>opt.Ignore());
         

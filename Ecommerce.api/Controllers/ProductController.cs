@@ -32,6 +32,29 @@ public class ProductController(IProductService service) : ControllerBase
       }
    }
 
+   [HttpGet("Catalog/{category}")]
+   [ProducesResponseType(StatusCodes.Status200OK)]
+   [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+   public async Task<ActionResult<Response<List<ProductDto>>>> GetCatalog(string category, string? search = null)
+   {
+      var response = new Response<List<ProductDto>>();
+      search??="";
+      try
+      {
+         response.Status = HttpStatusCode.OK;
+         response.Data = await service.CatalogAsync(category, search);
+         response.Success = true;
+         return Ok(response);
+      }
+      catch (Exception ex)
+      {
+         response.Status = HttpStatusCode.InternalServerError;
+         response.Message = ex.Message;
+         response.Success = false;
+         return StatusCode(500, response);
+      }
+   }
+   
    [HttpGet("Get/{id:int}")]
    [ProducesResponseType(StatusCodes.Status200OK)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]

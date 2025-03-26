@@ -8,6 +8,7 @@ public interface IProductService
 {
     Task<Response<List<ProductDto>>?> ListAsync(string search);
     Task<Response<ProductDto>?> GetProductAsync(int id);
+    Task<Response<List<ProductDto>>?>GetCatalogAsync(string category, string search );
     Task<Response<ProductDto>?> CreateAsync(ProductDto model);
     Task<Response<bool>?> UpdateAsync(ProductDto model);
     Task<Response<bool>?> DeleteAsync(int id);
@@ -24,6 +25,13 @@ public class ProductService(HttpClient httpClient): IProductService
     public async Task<Response<ProductDto>?> GetProductAsync(int id)
     {
         var response = await httpClient.GetFromJsonAsync<Response<ProductDto>>($"product/get/{id}");
+        return response;
+    }
+
+    public Task<Response<List<ProductDto>>?> GetCatalogAsync(string category, string search)
+    {
+        string query = string.IsNullOrWhiteSpace(search) ? "" : $"?search={Uri.EscapeDataString(search)}";
+        var response = httpClient.GetFromJsonAsync<Response<List<ProductDto>>>($"product/catalog/{category}/{query}");
         return response;
     }
 

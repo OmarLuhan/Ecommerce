@@ -1,8 +1,123 @@
 @page "/"
 @page "/catalog"
+@inject ICategoryService CategoryService
+@inject NavigationManager NavigationManager
+@inject IProductService ProductService
 
-<h3>Catalog</h3>
+<div class="flex justify-center mt-3 mb-4">
+    <div class="w-full sm:w-3/4 md:w-2/3 xl:w-3/4">
+        <div class="flex border rounded-lg overflow-hidden">
+            <input type="text" class="flex-1 px-4 py-2 outline-none" placeholder="Search product..." @bind-value="_search">
+            <button class="px-4 py-2 bg-gray-200 hover:bg-gray-300" @onclick="async () => await LoadCatalog()">
+                <i class="oi oi-magnifying-glass"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<div class="flex flex-col sm:flex-row gap-4">
+    <!-- Sidebar Categorías -->
+    <div class="w-full sm:w-1/4">
+        <div class="bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="bg-gray-900 text-white px-4 py-2 font-semibold">Categories</div>
+            <div class="p-4">
+                @if (_categories!= null)
+                {
+                    <div class="flex items-center gap-2">
+                        <input type="radio" name="category" id="all" value="Todos" class="accent-blue-500"
+                               @onchange="HandleCategoryChange" checked=@(_category.Equals("all"))>
+                        <label for="all" class="text-gray-700">All</label>
+                    </div>
+                }
+                else
+                {
+                    <div class="flex justify-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- Catálogo de Productos -->
+    <div class="w-full sm:w-3/4">
+        <div class="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4">
+            @if (_products != null)
+            {
+                @foreach (var item in _products)
+                {
+                    <div class="bg-white shadow-lg rounded-lg overflow-hidden relative">
+                        <!-- Badge de 'Nuevo' -->
+                        <div class="absolute bg-blue-500 text-white text-xs font-bold px-2 py-1 top-2 right-2 rounded">
+                            new
+                        </div>
+
+                        <!-- Imagen del producto (altura aumentada) -->
+                        <img class="w-full h-72 object-cover border border-gray-300" src="@item.Image" alt="Product Image">
+
+                        <!-- Detalles del producto -->
+                        <div class="p-4 text-center">
+                            <h5 class="font-bold text-lg">@item.Name</h5>
+
+                            <!-- Precio -->
+                            @if (@item.OfferPrice < @item.Price)
+                            {
+                                <p class="text-red-500 line-through">S/. @item.Price</p>
+                                <p class="text-green-600 font-bold">S/. @item.OfferPrice</p>
+                            }
+                            else
+                            {
+                                <p class="text-gray-700 font-bold">S/. @item.Price</p>
+                            }
+                        </div>
+
+                        <!-- Botón Ver Producto -->
+                        <div class="p-3 border-t border-gray-200 bg-gray-50">
+                            <a href="/detail/@item.Id" class="block text-center px-4 py-2 bg-gray-900 text-white rounded-md hover:bg-gray-700">
+                                Details
+                            </a>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="flex justify-center items-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
+                    <span class="ml-2 text-gray-600">Loading...</span>
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 @code {
+    private List<ProductDto> _products = [];
+    private List<CategoryDto> _categories = [];
+    private string _search = "";
+    private string _category = "all";
+    
+    private async Task LoadCategory()
+    {
+        var response = await CategoryService.ListAsync();
+        _categories= response is { Success: true } ? response.Data! : [];
+    }
+    private async Task LoadCatalog()
+    {
+        var response = await ProductService.GetCatalogAsync(_category, _search);
+        _products= response is { Success: true } ? response.Data! : [];
+    }
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadCategory();
+        await LoadCatalog();
+    }
+    private async Task HandleCategoryChange(ChangeEventArgs e)
+    {
+        _category = e.Value?.ToString() ?? "All";
+        _search = "";
+        await LoadCatalog();
+    }
+        
     
 }

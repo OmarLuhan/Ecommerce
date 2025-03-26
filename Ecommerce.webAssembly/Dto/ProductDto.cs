@@ -11,6 +11,7 @@ public class ProductDto
     [Required]
     public int? CategoryId { get; set; }
     [Required]
+    public string CategoryName { get; set; } = null!;
     public decimal Price { get; set; }
     [Required]
     public decimal OfferPrice { get; set; }
