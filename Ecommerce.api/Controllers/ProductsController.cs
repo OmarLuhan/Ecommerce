@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 namespace Ecommerce.api.Controllers;
 
 [Route("api/[controller]")]
-public class ProductController(IProductService service) : ControllerBase
+public class ProductsController(IProductService service) : ControllerBase
 {
-   [HttpGet("List")]
+   [HttpGet]
    [ProducesResponseType(StatusCodes.Status200OK)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
    public async Task<ActionResult<Response<List<ProductDto>>>> GetProducts(string? search = null)

@@ -5,8 +5,8 @@ using Microsoft.EntityFrameworkCore;
 namespace Ecommerce.api.Repository;
 public interface IGenericRepository<T> where T : class
 {
-    IQueryable<T> Query(Expression<Func<T, bool>>? filters = null);
-    Task<T?> GetAsync(Expression<Func<T, bool>> filters, bool tracked = true);
+    IQueryable<T> Query(Expression<Func<T, bool>>? filters = null,bool track = false);
+    Task<T?> GetAsync(Expression<Func<T, bool>> filters, bool track= false);
     Task<T> CreateAsync(T entity);
     Task<bool>UpdateAsync(T entity);
     Task <bool>DeleteAsync(T entity);
@@ -21,16 +21,15 @@ public class GenericRepository <T> : IGenericRepository<T> where T : class
         _dbSet=_context.Set<T>();
     }
 
-    public IQueryable<T> Query(Expression<Func<T, bool>>? filters = null)
+    public IQueryable<T> Query(Expression<Func<T, bool>>? filters = null, bool track = false)
     {
-        IQueryable<T> query = filters == null ? _dbSet : _dbSet.Where(filters);
-        return query;
+        var query = filters == null ? _dbSet : _dbSet.Where(filters);
+        return track ? query : query.AsNoTracking();
     }
 
-    public async Task<T?> GetAsync(Expression<Func<T, bool>> filters, bool tracked = true)
+    public async Task<T?> GetAsync(Expression<Func<T, bool>> filters, bool track = false)
     {
-        IQueryable<T> query = _dbSet;
-        if (!tracked) query = query.AsNoTracking();
+        var query = track ? _dbSet : _dbSet.AsNoTracking();
         return await query.Where(filters).FirstOrDefaultAsync();
     }
 

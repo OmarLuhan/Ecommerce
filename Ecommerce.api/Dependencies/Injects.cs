@@ -24,7 +24,7 @@ public static class Injects
         {
             builder.AllowAnyMethod()
                 .AllowAnyHeader()
-                .WithOrigins("http://localhost:5036","https://localhost:7067");
+                .WithOrigins("http://localhost:5036","http://localhost:4200");
         }));
     }
 }

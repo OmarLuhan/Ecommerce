@@ -1,4 +1,5 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Ecommerce.api.Dto;
 using Ecommerce.api.Model;
 using Ecommerce.api.Repository;
@@ -8,7 +9,7 @@ namespace Ecommerce.api.Service;
 
 public interface IUserService
 {
-    Task<List<UserDto>> ListAsync(string role,string search);
+    Task<PageList<UserDto>> ListAsync(SpecParam? specParams,string role,string search);
     Task<UserDto> GetUserAsync(int id);
     Task<SessionDto>AuthorizeAsync(LoginDto model);
     Task<UserDto>CreateAsync(UserDto model);
@@ -17,14 +18,40 @@ public interface IUserService
 }
 public class UserService(IGenericRepository<User> userRepository,IMapper mapper):IUserService
 {
-    public async Task<List<UserDto>> ListAsync(string role, string search)
+    public async Task<PageList<UserDto>> ListAsync(SpecParam? specParams, string role, string search)
     {
-        IQueryable<User> query = userRepository.Query();
-        if(!string.IsNullOrEmpty(role))
-            query = query.Where(u=>u.Role==role);
-        if(!string.IsNullOrEmpty(search))
-            query = query.Where(u=>u.FullName.Contains(search) || u.Email.Contains(search));
-        return mapper.Map<List<UserDto>>(await query.ToListAsync());
+   
+        ArgumentNullException.ThrowIfNull(specParams);
+
+        if (specParams.PageSize <= 0 || specParams.PageNumber <= 0)
+            throw new ArgumentException("Parámetros de paginación inválidos");
+        
+        IQueryable<User> query = userRepository.Query(track: false);
+
+
+        if (!string.IsNullOrEmpty(role))
+            query = query.Where(u => u.Role == role);
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            search = search.Trim();
+            query = query.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
+        }
+        
+        if (!string.IsNullOrEmpty(specParams.SortBy))
+        {
+            query = specParams.SortDesc
+                ? query.OrderByDescending(u => EF.Property<object>(u, specParams.SortBy))
+                : query.OrderBy(u => EF.Property<object>(u, specParams.SortBy));
+        }
+
+        var queryDto = query.ProjectTo<UserDto>(mapper.ConfigurationProvider);
+        
+        return await PageList<UserDto>.ToPageList(
+            queryDto,
+            specParams.PageNumber,
+            specParams.PageSize
+        );
     }
 
     public async Task<UserDto> GetUserAsync(int id)
