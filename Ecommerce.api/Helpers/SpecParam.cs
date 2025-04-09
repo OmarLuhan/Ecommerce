@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Ecommerce.api.Dto;
+namespace Ecommerce.api.Helpers;
 public class SpecParam
 {
     [Range(1, int.MaxValue)] 

@@ -98,7 +98,7 @@ public class ProductsController(IProductService service) : ControllerBase
          return StatusCode(500, response);
       }
    }
-   [HttpPost("Add")]
+   [HttpPost]
    [ProducesResponseType(StatusCodes.Status201Created)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
    public async Task<ActionResult<Response<ProductDto>>>AddProduct([FromBody] ProductCreateDto product)
@@ -140,7 +140,7 @@ public class ProductsController(IProductService service) : ControllerBase
       }
       
    }
-   [HttpDelete("Delete/{id:int}")]
+   [HttpDelete("{id:int}")]
    [ProducesResponseType(StatusCodes.Status204NoContent)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
    public async Task<IActionResult> DeleteProduct(int id)

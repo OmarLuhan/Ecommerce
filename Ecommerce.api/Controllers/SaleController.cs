@@ -8,7 +8,7 @@ namespace Ecommerce.api.Controllers;
 [Route("api/[controller]")]
 public class SaleController(ISaleService service):ControllerBase
 {
-   [HttpGet("Get/{id:int}")]
+   [HttpGet("{id:int}")]
    [ProducesResponseType(StatusCodes.Status200OK)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
    public async Task<ActionResult<Response<SaleDto>>> Get(int id)
@@ -29,7 +29,7 @@ public class SaleController(ISaleService service):ControllerBase
          return StatusCode(500, response);
       }
    }
- [HttpPost("Add")]   
+ [HttpPost]   
  public async Task<ActionResult<Response<SaleDto>>> AddSale([FromBody] SaleDto sale)
  {
     var response = new Response<SaleDto>();

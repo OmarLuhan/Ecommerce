@@ -16,15 +16,13 @@ public class UsersController(IUserService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Response<IEnumerable<UserDto>>>> List(
         string role,
-        [FromQuery] SpecParam? specParams,  
+        [FromQuery] SpecParam? specParam,  
         [FromQuery] string? search = null)
     {
         Response<IEnumerable<UserDto>> response = new();
         try
         {
-            specParams ??= new SpecParam();
-            
-            PageList<UserDto> pagedData = await service.ListAsync(specParams, role, search ?? "");
+            PageList<UserDto> pagedData = await service.ListAsync(specParam, role, search ?? "");
             
             Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(new
             {
@@ -74,7 +72,7 @@ public class UsersController(IUserService service) : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Response<UserDto>>> Add([FromBody]UserDto user)
+    public async Task<ActionResult<Response<UserDto>>> Add([FromBody]UserCreateDto user)
     {
         var response = new Response<UserDto>();
         try
@@ -119,7 +117,7 @@ public class UsersController(IUserService service) : ControllerBase
     [ProducesResponseType(StatusCodes.Status204NoContent)] 
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> Update([FromBody] UserDto user)
+    public async Task<IActionResult> Update([FromBody] UserUpdateDto user)
     {
         try
         {

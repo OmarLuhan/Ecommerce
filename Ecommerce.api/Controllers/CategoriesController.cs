@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using Ecommerce.api.Dto;
 using Ecommerce.api.Helpers;
 using Ecommerce.api.Service;
@@ -12,15 +13,24 @@ public class CategoriesController(ICategoryService service) : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Response<List<CategoryDto>>>> ListAsync(string? search = null)
+    public async Task<ActionResult<Response<PageList<CategoryDto>>>> ListAsync([FromQuery] SpecParam? specParam,string? search = null)
     {
-        var response = new Response<List<CategoryDto>>();
-        search ??= "";
+        var response = new Response<PageList<CategoryDto>>();
         try
         {
+            PageList<CategoryDto>pagedData=await service.ListAsync(specParam,search??"");
+            Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(new
+            {
+                pagedData.MetaData.CurrentPage,
+                pagedData.MetaData.PageSize,
+                pagedData.MetaData.TotalCount,
+                pagedData.MetaData.TotalPages,
+                HasPrevious = pagedData.MetaData.CurrentPage > 1,
+                HasNext = pagedData.MetaData.CurrentPage < pagedData.MetaData.TotalPages
+            }));
             response.Status = HttpStatusCode.OK;
             response.Success = true;
-            response.Data = await service.ListAsync(search);
+            response.Data = pagedData;
             return Ok(response);
         }
         catch (Exception ex)
@@ -31,7 +41,7 @@ public class CategoriesController(ICategoryService service) : ControllerBase
             return StatusCode(500, response);
         }
     }
-    [HttpGet("get/{id:int}")]
+    [HttpGet("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult<Response<CategoryDto>>> Get(int id)
@@ -52,10 +62,10 @@ public class CategoriesController(ICategoryService service) : ControllerBase
             return StatusCode(500, response);
         }
     }
-    [HttpPost("add")]
+    [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Response<CategoryDto>>> AddAsync([FromBody] CategoryDto category)
+    public async Task<ActionResult<Response<CategoryDto>>> AddAsync([FromBody] CategoryCreateDto category)
     {
         var response = new Response<CategoryDto>();
         try
@@ -73,15 +83,14 @@ public class CategoriesController(ICategoryService service) : ControllerBase
             return StatusCode(500, response);
         }
     }
-    [HttpPut("update")]
+    [HttpPut]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> UpdateAsync([FromBody] CategoryDto category)
+    public async Task<IActionResult> UpdateAsync([FromBody] CategoryUpdateDto category)
     {
         try
         {
             await service.UpdateAsync(category);
-            
             return NoContent();
         }
         catch (Exception ex)
@@ -94,7 +103,7 @@ public class CategoriesController(ICategoryService service) : ControllerBase
             });
         }
     }
-    [HttpDelete("delete/{id:int}")]
+    [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteAsync(int id)

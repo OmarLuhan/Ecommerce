@@ -13,8 +13,8 @@ public interface IUserService
     Task<PageList<UserDto>> ListAsync(SpecParam? specParams,string role,string search);
     Task<UserDto> GetUserAsync(int id);
     Task<SessionDto>AuthorizeAsync(LoginDto model);
-    Task<UserDto>CreateAsync(UserDto model);
-    Task UpdateAsync(UserDto model);
+    Task<UserDto>CreateAsync(UserCreateDto model);
+    Task UpdateAsync(UserUpdateDto model);
     Task DeleteAsync(int id);
 }
 public class UserService(IGenericRepository<User> userRepository,IMapper mapper):IUserService
@@ -23,7 +23,7 @@ public class UserService(IGenericRepository<User> userRepository,IMapper mapper)
     {
    
         ArgumentNullException.ThrowIfNull(specParams);
-        
+        // var propertyExists = specParams.SortBy != null && typeof(User).GetProperty(specParams.SortBy) != null;
         IQueryable<User> query = userRepository.Query(track: false);
         
         if (!string.IsNullOrEmpty(role))
@@ -33,6 +33,7 @@ public class UserService(IGenericRepository<User> userRepository,IMapper mapper)
             search = search.Trim();
             query = query.Where(u => u.FullName.Contains(search) || u.Email.Contains(search));
         }
+       
         if (!string.IsNullOrEmpty(specParams.SortBy))
         {
             query = specParams.SortDesc
@@ -64,7 +65,7 @@ public class UserService(IGenericRepository<User> userRepository,IMapper mapper)
         return mapper.Map<SessionDto>(user);
     }
 
-    public async Task<UserDto> CreateAsync(UserDto model)
+    public async Task<UserDto> CreateAsync(UserCreateDto model)
     {
        User user = mapper.Map<User>(model);
        User newUser = await userRepository.CreateAsync(user);
@@ -73,7 +74,7 @@ public class UserService(IGenericRepository<User> userRepository,IMapper mapper)
        return mapper.Map<UserDto>(newUser);
     }
 
-    public async Task UpdateAsync(UserDto model)
+    public async Task UpdateAsync(UserUpdateDto model)
     {
         User? user =await  userRepository.GetAsync(u=>u.Id==model.Id,track:true);
         if(user==null)
