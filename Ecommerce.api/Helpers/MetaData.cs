@@ -1,4 +1,4 @@
-namespace Ecommerce.api.Dto;
+namespace Ecommerce.api.Helpers;
 
 public class MetaData
 {

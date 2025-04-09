@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Ecommerce.api.Dto;
+using Ecommerce.api.Helpers;
 using Ecommerce.api.Model;
 using Ecommerce.api.Repository;
 using Microsoft.EntityFrameworkCore;

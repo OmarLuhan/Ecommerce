@@ -1,5 +1,7 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using Ecommerce.api.Dto;
+using Ecommerce.api.Helpers;
 using Ecommerce.api.Model;
 using Ecommerce.api.Repository;
 using Microsoft.EntityFrameworkCore;
@@ -7,23 +9,40 @@ using Microsoft.EntityFrameworkCore;
 namespace Ecommerce.api.Service;
 public interface IProductService
 {
-    Task<List<ProductDto>> ListAsync(string search);
-    Task<List<ProductDto>> CatalogAsync(string category, string search);
+    Task<PageList<ProductDto>> ListAsync(SpecParam? specParam,string search);
+    Task<PageList<ProductDto>> CatalogAsync(SpecParam? specParam,string category, string search);
     Task<ProductDto> GetProductAsync(int id);
-    Task<ProductDto> CreateAsync(ProductDto model);
-    Task UpdateAsync(ProductDto model);
+    Task<ProductDto> CreateAsync(ProductCreateDto model);
+    Task UpdateAsync(ProductUpdateDto model);
     Task DeleteAsync(int id);
 }
 public class ProductService(IGenericRepository<Product> productRepository,IMapper mapper):IProductService
 {
-    public async Task<List<ProductDto>> ListAsync(string search)
+    public async Task<PageList<ProductDto>> ListAsync(SpecParam? specParam, string search)
     {
-        IQueryable<Product>query= productRepository.Query(p=>p.Name.Contains(search));
-        return mapper.Map<List<ProductDto>>(await query.ToListAsync());
+        ArgumentNullException.ThrowIfNull(specParam);
+        
+        IQueryable<Product>query= productRepository.Query();
+        if(!string.IsNullOrEmpty(search))
+            query = query.Where(p=>p.Name.Contains(search));
+        
+        if(!string.IsNullOrEmpty(specParam.SortBy))
+        {
+            query = specParam.SortDesc
+                ? query.OrderByDescending(p => EF.Property<object>(p, specParam.SortBy))
+                : query.OrderBy(p => EF.Property<object>(p, specParam.SortBy));
+        }
+        var queryDto = query.ProjectTo<ProductDto>(mapper.ConfigurationProvider);
+        return await PageList<ProductDto>.ToPageList(
+            queryDto,
+            specParam.PageNumber,
+            specParam.PageSize
+        );
     }
 
-    public async Task<List<ProductDto>> CatalogAsync(string category, string search)
+    public async Task<PageList<ProductDto>> CatalogAsync(SpecParam? specParam,string category, string search)
     {
+        ArgumentNullException.ThrowIfNull(specParam);
         if(category=="all")
             category="";
         IQueryable<Product> query = productRepository.Query().Include(c=>c.Category);
@@ -31,19 +50,29 @@ public class ProductService(IGenericRepository<Product> productRepository,IMappe
             query = query.Where(c=>c.Category!.Name==category);
         if(!string.IsNullOrEmpty(search))
             query = query.Where(s=>s.Name.Contains(search));
-        return mapper.Map<List<ProductDto>>(await query.ToListAsync());
+        if(!string.IsNullOrEmpty(specParam.SortBy))
+        {
+            query = specParam.SortDesc
+                ? query.OrderByDescending(p => EF.Property<object>(p, specParam.SortBy))
+                : query.OrderBy(p => EF.Property<object>(p, specParam.SortBy));
+        }
+        var queryDto = query.ProjectTo<ProductDto>(mapper.ConfigurationProvider);
+        return await PageList<ProductDto>.ToPageList(
+            queryDto,
+            specParam.PageNumber,
+            specParam.PageSize
+        );
     }
 
     public async Task<ProductDto> GetProductAsync(int id)
     {
-        IQueryable<Product>query = productRepository.Query(p=>p.Id==id);
-        Product? product = await query.FirstOrDefaultAsync();
+        Product? product =await  productRepository.GetAsync(p=>p.Id==id);
         if(product==null)
             throw new TaskCanceledException("Product not found");
         return mapper.Map<ProductDto>(product);
     }
 
-    public async Task<ProductDto> CreateAsync(ProductDto model)
+    public async Task<ProductDto> CreateAsync(ProductCreateDto model)
     {
         Product product= mapper.Map<Product>(model);
         Product newProduct = await productRepository.CreateAsync(product);
@@ -52,7 +81,7 @@ public class ProductService(IGenericRepository<Product> productRepository,IMappe
         return mapper.Map<ProductDto>(newProduct);
     }
 
-    public async Task  UpdateAsync(ProductDto model)
+    public async Task  UpdateAsync(ProductUpdateDto model)
     {
         Product? product= await productRepository.GetAsync(p=>p.Id==model.Id,track:true);
         if(product==null)

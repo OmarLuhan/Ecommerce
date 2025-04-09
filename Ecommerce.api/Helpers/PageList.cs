@@ -1,7 +1,7 @@
 using System.Collections;
 using Microsoft.EntityFrameworkCore;
 
-namespace Ecommerce.api.Dto;
+namespace Ecommerce.api.Helpers;
 
 public class PageList<T>(IEnumerable<T> items, int count, int pageNumber, int pageSize)
     : IReadOnlyList<T>

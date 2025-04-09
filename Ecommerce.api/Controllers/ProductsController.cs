@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using Ecommerce.api.Dto;
 using Ecommerce.api.Helpers;
 using Ecommerce.api.Service;
@@ -12,14 +13,23 @@ public class ProductsController(IProductService service) : ControllerBase
    [HttpGet]
    [ProducesResponseType(StatusCodes.Status200OK)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-   public async Task<ActionResult<Response<List<ProductDto>>>> GetProducts(string? search = null)
+   public async Task<ActionResult<Response<PageList<ProductDto>>>> GetProducts([FromQuery] SpecParam? specParams, [FromQuery] string? search = null)
    {
-      var response = new Response<List<ProductDto>>();
-      search??="";
+      var response = new Response<PageList<ProductDto>>();
       try
       {
+         PageList<ProductDto>pagedData=await  service.ListAsync(specParams, search?? "");
+         Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(new
+         {
+            pagedData.MetaData.CurrentPage,
+            pagedData.MetaData.PageSize,
+            pagedData.MetaData.TotalCount,
+            pagedData.MetaData.TotalPages,
+            HasPrevious = pagedData.MetaData.CurrentPage > 1,
+            HasNext = pagedData.MetaData.CurrentPage < pagedData.MetaData.TotalPages
+         }));
          response.Status = HttpStatusCode.OK;
-         response.Data = await service.ListAsync(search);
+         response.Data = pagedData;
          response.Success = true;
          return Ok(response);
       }
@@ -32,17 +42,29 @@ public class ProductsController(IProductService service) : ControllerBase
       }
    }
 
-   [HttpGet("Catalog/{category}")]
+   [HttpGet("catalog/{category}")]
    [ProducesResponseType(StatusCodes.Status200OK)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-   public async Task<ActionResult<Response<List<ProductDto>>>> GetCatalog(string category, string? search = null)
+   public async Task<ActionResult<Response<List<ProductDto>>>> GetCatalog(
+      string category, 
+      [FromQuery] SpecParam? specParams,
+      [FromQuery]string? search = null)
    {
-      var response = new Response<List<ProductDto>>();
-      search??="";
+      var response = new Response<PageList<ProductDto>>();
       try
       {
+         PageList<ProductDto> pagedData = await service.CatalogAsync(specParams, category, search ?? "");
+         Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(new
+         {
+            pagedData.MetaData.CurrentPage,
+            pagedData.MetaData.PageSize,
+            pagedData.MetaData.TotalCount,
+            pagedData.MetaData.TotalPages,
+            HasPrevious = pagedData.MetaData.CurrentPage > 1,
+            HasNext = pagedData.MetaData.CurrentPage < pagedData.MetaData.TotalPages
+         }));
          response.Status = HttpStatusCode.OK;
-         response.Data = await service.CatalogAsync(category, search);
+         response.Data = pagedData;
          response.Success = true;
          return Ok(response);
       }
@@ -55,7 +77,7 @@ public class ProductsController(IProductService service) : ControllerBase
       }
    }
    
-   [HttpGet("Get/{id:int}")]
+   [HttpGet("{id:int}")]
    [ProducesResponseType(StatusCodes.Status200OK)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
    public async Task<ActionResult<Response<ProductDto>>> Get(int id)
@@ -79,7 +101,7 @@ public class ProductsController(IProductService service) : ControllerBase
    [HttpPost("Add")]
    [ProducesResponseType(StatusCodes.Status201Created)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-   public async Task<ActionResult<Response<ProductDto>>>AddProduct([FromBody] ProductDto product)
+   public async Task<ActionResult<Response<ProductDto>>>AddProduct([FromBody] ProductCreateDto product)
    {
       var response = new Response<ProductDto>();
       try
@@ -100,7 +122,7 @@ public class ProductsController(IProductService service) : ControllerBase
    [HttpPut("Update")]
    [ProducesResponseType(StatusCodes.Status204NoContent)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-   public async Task<IActionResult> UpdateProduct([FromBody] ProductDto product)
+   public async Task<IActionResult> UpdateProduct([FromBody] ProductUpdateDto product)
    {
       try
       {

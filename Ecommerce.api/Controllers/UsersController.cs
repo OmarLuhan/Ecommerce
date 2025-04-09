@@ -130,6 +130,7 @@ public class UsersController(IUserService service) : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new 
             {
+                Status = HttpStatusCode.InternalServerError,
                 ex.Message,
                 Success = false
             });
@@ -150,6 +151,7 @@ public class UsersController(IUserService service) : ControllerBase
         {
             return StatusCode(StatusCodes.Status500InternalServerError, new 
             {
+                Status = HttpStatusCode.InternalServerError,
                 ex.Message,
                 Success = false
             });
