@@ -8,8 +8,8 @@ public interface IGenericRepository<T> where T : class
     IQueryable<T> Query(Expression<Func<T, bool>>? filters = null,bool track = false);
     Task<T?> GetAsync(Expression<Func<T, bool>> filters, bool track= false);
     Task<T> CreateAsync(T entity);
-    Task<bool>UpdateAsync(T entity);
-    Task <bool>DeleteAsync(T entity);
+    Task UpdateAsync(T entity);
+    Task DeleteAsync(int id);
 }
 public class GenericRepository <T> : IGenericRepository<T> where T : class
 {
@@ -40,18 +40,16 @@ public class GenericRepository <T> : IGenericRepository<T> where T : class
         return entity;
     }
 
-    public async Task<bool> UpdateAsync(T entity)
+    public async Task UpdateAsync(T entity)
     {
         _dbSet.Update(entity);
         await _context.SaveChangesAsync();
-        return true;
     }
 
-    public async Task<bool> DeleteAsync(T entity)
+    public async Task DeleteAsync(int id)
     {
-        _dbSet.Remove(entity);
-        await _context.SaveChangesAsync();
-        return true;
+        var entity = await _dbSet.FindAsync(id); 
+        if (entity != null) _dbSet.Remove(entity);
     }
    
 }

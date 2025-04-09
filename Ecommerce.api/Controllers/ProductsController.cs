@@ -102,44 +102,40 @@ public class ProductsController(IProductService service) : ControllerBase
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
    public async Task<IActionResult> UpdateProduct([FromBody] ProductDto product)
    {
-      var response = new Response<bool>();
       try
       {
-         response.Status= HttpStatusCode.NoContent;
-         response.Success=true;
-         response.Data= await service.UpdateAsync(product);
-         return Ok(response);
+         await service.UpdateAsync(product);
+         return NoContent();
       }
       catch (Exception ex)
       {
-
-         response.Status = HttpStatusCode.InternalServerError;
-         response.Message = ex.Message;
-         response.Success = false;
-         
-         return StatusCode(500, response);
+         return StatusCode(500, new
+         {
+            Status = HttpStatusCode.InternalServerError,
+            ex.Message,
+            Success = false
+         });
       }
       
    }
    [HttpDelete("Delete/{id:int}")]
    [ProducesResponseType(StatusCodes.Status204NoContent)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-   public async Task<ActionResult<Response<bool>>> DeleteProduct(int id)
+   public async Task<IActionResult> DeleteProduct(int id)
    {
-      var response = new Response<bool>();
       try
       {
-         response.Status= HttpStatusCode.NoContent;
-         response.Success=true;
-         response.Data= await service.DeleteAsync(id);
-         return Ok(response);
+         await service.DeleteAsync(id);
+         return NoContent();
       }
       catch (Exception ex)
       {
-        response.Success=false;
-         response.Message=ex.Message;
-         response.Status= HttpStatusCode.InternalServerError;
-         return StatusCode(500, response);
+         return StatusCode(500, new
+         {
+            Status = HttpStatusCode.InternalServerError,
+            ex.Message,
+            Success = false
+         });
       }
    }
    

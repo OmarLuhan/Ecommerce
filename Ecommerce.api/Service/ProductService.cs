@@ -11,8 +11,8 @@ public interface IProductService
     Task<List<ProductDto>> CatalogAsync(string category, string search);
     Task<ProductDto> GetProductAsync(int id);
     Task<ProductDto> CreateAsync(ProductDto model);
-    Task<bool> UpdateAsync(ProductDto model);
-    Task<bool> DeleteAsync(int id);
+    Task UpdateAsync(ProductDto model);
+    Task DeleteAsync(int id);
 }
 public class ProductService(IGenericRepository<Product> productRepository,IMapper mapper):IProductService
 {
@@ -52,10 +52,9 @@ public class ProductService(IGenericRepository<Product> productRepository,IMappe
         return mapper.Map<ProductDto>(newProduct);
     }
 
-    public async Task<bool> UpdateAsync(ProductDto model)
+    public async Task  UpdateAsync(ProductDto model)
     {
-        IQueryable<Product>query= productRepository.Query(p=>p.Id==model.Id);
-        Product? product = await query.FirstOrDefaultAsync();
+        Product? product= await productRepository.GetAsync(p=>p.Id==model.Id,track:true);
         if(product==null)
             throw new TaskCanceledException("Product not found");
         product.Name = model.Name;
@@ -65,21 +64,12 @@ public class ProductService(IGenericRepository<Product> productRepository,IMappe
         product.Image = model.Image;
         product.OfferPrice = model.OfferPrice;
         product.Stock = model.Stock;
-        bool updated = await productRepository.UpdateAsync(product);
-        if(!updated)
-            throw new TaskCanceledException("Failed to update product");
-        return updated;
+        await productRepository.UpdateAsync(product);
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task  DeleteAsync(int id)
     {
-        IQueryable<Product>query= productRepository.Query(p=>p.Id==id);
-        Product? product = await query.FirstOrDefaultAsync();
-        if(product==null)
-            throw new TaskCanceledException("Product not found");
-        bool deleted = await productRepository.DeleteAsync(product);
-        if(!deleted)
-            throw new TaskCanceledException("Failed to delete product");
-        return deleted;
+        await productRepository.DeleteAsync(id);
+       
     }
 }

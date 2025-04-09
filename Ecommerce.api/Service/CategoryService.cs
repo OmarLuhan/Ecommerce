@@ -10,8 +10,8 @@ public interface ICategoryService
     Task<List<CategoryDto>> ListAsync(string search);
     Task<CategoryDto> GetCategoryAsync(int id);
     Task<CategoryDto> CreateAsync(CategoryDto model);
-    Task<bool> UpdateAsync(CategoryDto model);
-    Task<bool> DeleteAsync(int id);
+    Task UpdateAsync(CategoryDto model);
+    Task DeleteAsync(int id);
 }
 public class CategoryService(IGenericRepository<Category> categoryRepository, IMapper mapper):ICategoryService
 {
@@ -42,29 +42,19 @@ public class CategoryService(IGenericRepository<Category> categoryRepository, IM
         return mapper.Map<CategoryDto>(newCategory);
     }
 
-    public async Task<bool> UpdateAsync(CategoryDto model)
+    public async Task UpdateAsync(CategoryDto model)
     {
         IQueryable<Category> query= categoryRepository.Query(c=>c.Id==model.Id);
         Category? category = await query.FirstOrDefaultAsync();
         if(category==null)
             throw new TaskCanceledException("Category not found");
         category.Name = model.Name;
-        bool updated = await categoryRepository.UpdateAsync(category);
-        if (!updated) 
-            throw new TaskCanceledException("Failed to update category");
-        return updated;
-        
+        await categoryRepository.UpdateAsync(category);
     }
 
-    public async Task<bool> DeleteAsync(int id)
+    public async Task DeleteAsync(int id)
     {
-        IQueryable<Category> query= categoryRepository.Query(c=>c.Id==id);
-        Category? category = await query.FirstOrDefaultAsync();
-        if(category==null)
-            throw new TaskCanceledException("Category not found");
-        bool deleted = await categoryRepository.DeleteAsync(category);
-        if (!deleted) 
-            throw new TaskCanceledException("Failed to delete category");
-        return deleted;
+        await categoryRepository.DeleteAsync(id);
+   
     }
 }

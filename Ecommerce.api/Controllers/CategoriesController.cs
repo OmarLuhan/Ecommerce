@@ -76,45 +76,43 @@ public class CategoriesController(ICategoryService service) : ControllerBase
     [HttpPut("update")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Response<bool>>> UpdateAsync([FromBody] CategoryDto category)
+    public async Task<IActionResult> UpdateAsync([FromBody] CategoryDto category)
     {
-        var response = new Response<bool>();
         try
         {
-            response.Data= await service.UpdateAsync(category);
-            response.Status = HttpStatusCode.OK;
-            response.Success = true;
+            await service.UpdateAsync(category);
             
-            return Ok(response);
+            return NoContent();
         }
         catch (Exception ex)
         {
-            response.Status = HttpStatusCode.InternalServerError;
-            response.Message = ex.Message;
-            response.Success = false;
-            return StatusCode(500, response);
+            return StatusCode(500, new
+            {
+                Status = HttpStatusCode.InternalServerError,
+                ex.Message,
+                Success = false
+            });
         }
     }
     [HttpDelete("delete/{id:int}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Response<bool>>> DeleteAsync(int id)
+    public async Task<IActionResult> DeleteAsync(int id)
     {
-        var response = new Response<bool>();
         try
         {
-            response.Status = HttpStatusCode.NoContent;
-            response.Success = true;
-            response.Data= await service.DeleteAsync(id);
-            return Ok(response);
+            await service.DeleteAsync(id);
+            return NoContent();
         }
         catch (Exception ex)
         {
-
-            response.Status = HttpStatusCode.InternalServerError;
-            response.Message = ex.Message;
-            response.Success = false;
-            return StatusCode(500, response);
+            
+            return StatusCode(500, new
+            {
+                Status = HttpStatusCode.InternalServerError,
+                ex.Message,
+                Success = false
+            });
         }
     }
     
