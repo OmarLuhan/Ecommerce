@@ -13,9 +13,9 @@ public class CategoriesController(ICategoryService service) : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Response<PageList<CategoryDto>>>> ListAsync([FromQuery] SpecParam? specParam,string? search = null)
+    public async Task<ActionResult<Response<IEnumerable<CategoryDto>>>> ListAsync([FromQuery] SpecParam? specParam,string? search = null)
     {
-        var response = new Response<PageList<CategoryDto>>();
+        var response = new Response<IEnumerable<CategoryDto>>();
         try
         {
             PageList<CategoryDto>pagedData=await service.ListAsync(specParam,search??"");

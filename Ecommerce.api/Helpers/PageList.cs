@@ -3,10 +3,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Ecommerce.api.Helpers;
 
-public class PageList<T>(IEnumerable<T> items, int count, int pageNumber, int pageSize)
+public class PageList<T>(List<T> items, int count, int pageNumber, int pageSize)
     : IReadOnlyList<T>
 {
-    private readonly List<T> _items = items.ToList();
     public MetaData MetaData { get; } = new()
     {
         CurrentPage = pageNumber,
@@ -15,9 +14,9 @@ public class PageList<T>(IEnumerable<T> items, int count, int pageNumber, int pa
         TotalPages = (int)Math.Ceiling(count / (double)pageSize)
     };
     
-    public T this[int index] => _items[index];
-    public int Count => _items.Count;
-    public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();
+    public T this[int index] => items[index];
+    public int Count => items.Count;
+    public IEnumerator<T> GetEnumerator() => items.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator()
     {
         return GetEnumerator();

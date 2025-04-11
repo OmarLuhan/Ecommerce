@@ -23,8 +23,8 @@ public class GenericRepository <T> : IGenericRepository<T> where T : class
 
     public IQueryable<T> Query(Expression<Func<T, bool>>? filters = null, bool track = false)
     {
-        var query = filters == null ? _dbSet : _dbSet.Where(filters);
-        return track ? query : query.AsNoTracking();
+        IQueryable<T>query = track ? _dbSet : _dbSet.AsNoTracking();
+        return filters != null ? query.Where(filters) : query;
     }
 
     public async Task<T?> GetAsync(Expression<Func<T, bool>> filters, bool track = false)

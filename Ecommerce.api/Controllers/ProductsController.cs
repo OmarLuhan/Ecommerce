@@ -13,9 +13,9 @@ public class ProductsController(IProductService service) : ControllerBase
    [HttpGet]
    [ProducesResponseType(StatusCodes.Status200OK)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-   public async Task<ActionResult<Response<PageList<ProductDto>>>> GetProducts([FromQuery] SpecParam? specParams, [FromQuery] string? search = null)
+   public async Task<ActionResult<Response<IEnumerable<ProductDto>>>> GetProducts([FromQuery] SpecParam? specParams, [FromQuery] string? search = null)
    {
-      var response = new Response<PageList<ProductDto>>();
+      var response = new Response<IEnumerable<ProductDto>>();
       try
       {
          PageList<ProductDto>pagedData=await  service.ListAsync(specParams, search?? "");
@@ -45,12 +45,12 @@ public class ProductsController(IProductService service) : ControllerBase
    [HttpGet("catalog/{category}")]
    [ProducesResponseType(StatusCodes.Status200OK)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-   public async Task<ActionResult<Response<List<ProductDto>>>> GetCatalog(
+   public async Task<ActionResult<Response<IEnumerable<ProductDto>>>> GetCatalog(
       string category, 
       [FromQuery] SpecParam? specParams,
       [FromQuery]string? search = null)
    {
-      var response = new Response<PageList<ProductDto>>();
+      var response = new Response<IEnumerable<ProductDto>>();
       try
       {
          PageList<ProductDto> pagedData = await service.CatalogAsync(specParams, category, search ?? "");
