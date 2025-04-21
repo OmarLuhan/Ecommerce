@@ -12,7 +12,8 @@ public static class Injects
     {
         services.AddDbContext<DbEcommerceContext>(options =>
             options.UseMySql(configuration.GetConnectionString("DefaultConnection"),new MySqlServerVersion(new Version(8, 0, 21))));
-        services.AddTransient(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+        services.AddScoped<IProductRepository, ProductRepository>();
         services.AddScoped<ISaleRepository, SaleRepository>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IProductService, ProductService>();

@@ -10,13 +10,17 @@ public class AutoMapperProfile:Profile
     {
         CreateMap<User, UserDto>().ReverseMap();
         CreateMap<User, SessionDto>();
+        CreateMap<UserCreateDto, User>();
 
         CreateMap<Category, CategoryDto>().ReverseMap();
+        CreateMap<CategoryCreateDto,Category>();
 
         CreateMap<Product, ProductDto>().ForMember(dest=>dest.CategoryName,
             opt=>opt.MapFrom(src=>src.Category!.Name));
-        CreateMap<ProductDto, Product>().ForMember(dest=>dest.CategoryId,
-            opt=>opt.Ignore());
+        CreateMap<ProductDto, Product>().ReverseMap();
+        CreateMap<ProductCreateDto, Product>();
+        CreateMap<ProductDto, ProductCreateDto>();
+        
         
         CreateMap<SaleDetail,SaleDetailDto>().ReverseMap();
         CreateMap<Sale, SaleDto>().ReverseMap();

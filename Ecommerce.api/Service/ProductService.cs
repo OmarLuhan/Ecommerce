@@ -16,7 +16,7 @@ public interface IProductService
     Task UpdateAsync(ProductUpdateDto model);
     Task DeleteAsync(int id);
 }
-public class ProductService(IGenericRepository<Product> productRepository,IMapper mapper):IProductService
+public class ProductService(IProductRepository productRepository,IMapper mapper):IProductService
 {
     public async Task<PageList<ProductDto>> ListAsync(SpecParam? specParam, string search)
     {
@@ -75,7 +75,7 @@ public class ProductService(IGenericRepository<Product> productRepository,IMappe
     public async Task<ProductDto> CreateAsync(ProductCreateDto model)
     {
         Product product= mapper.Map<Product>(model);
-        Product newProduct = await productRepository.CreateAsync(product);
+        Product newProduct = await productRepository.CreateProduct(product);
         if(newProduct.Id == 0)
             throw new TaskCanceledException("Failed to create product");
         return mapper.Map<ProductDto>(newProduct);
