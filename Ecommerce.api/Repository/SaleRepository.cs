@@ -41,10 +41,7 @@ public class SaleRepository(DbEcommerceContext context) : GenericRepository<Sale
                 return false;
             }
             product.Stock -= detail.Quantity;
-            _context.Products.Update(product);
         }
-
-        await _context.SaveChangesAsync();
         return true;
     }
 }
