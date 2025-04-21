@@ -47,6 +47,28 @@ Total decimal(10,2) not null,
 FOREIGN KEY (SaleId) REFERENCES Sale(Id)
 );
 
+-- creamos un sp para ejecutarlo en .net
+CREATE PROCEDURE sp_create_product(
+  IN Name varchar(100),
+  IN Description varchar(100),
+  IN CategoryId int,
+  IN Price decimal(10,2),
+  IN OfferPrice decimal(10,2),
+  IN Stock int,
+  IN Image varchar(100),
+  OUT Id int 
+  
+)
+BEGIN
+    insert into Product (Name,Description,CategoryId,Price,OfferPrice,
+                         Stock,Image) values (Name,Description,CategoryId,Price,OfferPrice,
+                         Stock,Image);
+     set Id = LAST_INSERT_ID();
+END;
+
+call sp_create_product('sp name','este producto fue crado por un sp',
+                      1,22.2,21.1,100,'https://image',@newId);
+select @newId;
 
 --insertamos un usuario para poder iniciar sesion
 
