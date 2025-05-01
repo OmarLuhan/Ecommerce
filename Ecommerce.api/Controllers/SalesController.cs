@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Ecommerce.api.Controllers;
 [Route("api/[controller]")]
-public class SaleController(ISaleService service):ControllerBase
+public class SalesController(ISaleService service):ControllerBase
 {
    [HttpGet("{id:int}")]
    [ProducesResponseType(StatusCodes.Status200OK)]

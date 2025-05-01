@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using Ecommerce.api.Model;
 using Microsoft.EntityFrameworkCore;
@@ -49,8 +50,11 @@ public class GenericRepository <T> : IGenericRepository<T> where T : class
 
     public async Task DeleteAsync(int id)
     {
-        var entity = await _dbSet.FindAsync(id); 
-        if (entity != null) _dbSet.Remove(entity);
+        var entity = await _dbSet.FindAsync(id);
+        if(entity== null)
+            throw new ValidationException($"Entity with id {id} not found");
+        _dbSet.Remove(entity);
+        await _context.SaveChangesAsync();
     }
    
 }

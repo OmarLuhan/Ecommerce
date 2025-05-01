@@ -18,33 +18,33 @@ public class UserService(HttpClient httpClient):IUserService
     public async Task<Response<List<UserDto>>?> ListAsync(string role, string search)
     {
         string query = string.IsNullOrWhiteSpace(search) ? "" : $"?search={Uri.EscapeDataString(search)}";
-        var response = await httpClient.GetFromJsonAsync<Response<List<UserDto>>>($"user/list/{role}/{query}");
+        var response = await httpClient.GetFromJsonAsync<Response<List<UserDto>>>($"users/{role}/{query}");
         return response;
     }
 
     public async Task<Response<UserDto>?> GetUserAsync(int id)
     {
-        var response = await httpClient.GetFromJsonAsync<Response<UserDto>>($"user/get/{id}");
+        var response = await httpClient.GetFromJsonAsync<Response<UserDto>>($"users/{id}");
         return response;
     }
 
     public async Task<Response<SessionDto>?> AuthorizeAsync(LoginDto model)
     {
-        var response = await httpClient.PostAsJsonAsync("user/authorize", model);
+        var response = await httpClient.PostAsJsonAsync("users/authorize", model);
         Response<SessionDto>? result =await response.Content.ReadFromJsonAsync<Response<SessionDto>>();
         return result;
     }
 
     public async Task<Response<UserDto>?> CreateAsync(UserDto model)
     {
-        var response = await httpClient.PostAsJsonAsync("user/add", model);
+        var response = await httpClient.PostAsJsonAsync("users", model);
         Response<UserDto>? result =await response.Content.ReadFromJsonAsync<Response<UserDto>>();
         return result;
     }
 
     public async Task<Response<bool>?> UpdateAsync(UserDto model)
     {
-        var response = await httpClient.PutAsJsonAsync("user/update", model);
+        var response = await httpClient.PutAsJsonAsync($"users/{model.Id}", model);
         Response<bool>? result =await response.Content.ReadFromJsonAsync<Response<bool>>();
         return result;
     }
@@ -52,7 +52,7 @@ public class UserService(HttpClient httpClient):IUserService
 
     public async Task<Response<bool>?> DeleteAsync(int id)
     {
-        var response = await httpClient.DeleteFromJsonAsync<Response<bool>>($"user/delete/{id}");
+        var response = await httpClient.DeleteFromJsonAsync<Response<bool>>($"users/{id}");
         return response;
     }
 }

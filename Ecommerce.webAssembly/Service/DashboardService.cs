@@ -11,7 +11,7 @@ public class DashboardService(HttpClient httpClient):IDashboardService
 {
     public Task<Response<DashboardDto>?> SummaryAsync()
     {
-        Task<Response<DashboardDto>?> response = httpClient.GetFromJsonAsync<Response<DashboardDto>>("dashboard/summary");
+        Task<Response<DashboardDto>?> response = httpClient.GetFromJsonAsync<Response<DashboardDto>>("dashboards/summary");
         return response;
     }
 }

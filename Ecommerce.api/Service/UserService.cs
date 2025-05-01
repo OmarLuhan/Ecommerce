@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Ecommerce.api.Dto;
@@ -87,6 +88,8 @@ public class UserService(IGenericRepository<User> userRepository,IMapper mapper)
 
     public async Task DeleteAsync(int id)
     {
+        if (id == 0)
+            throw new ValidationException(nameof(id) + " cannot be 0");
         await userRepository.DeleteAsync(id);
     }
 }

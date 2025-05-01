@@ -7,7 +7,7 @@ public class SpecParam
     public int PageNumber { get; set; } = 1; 
     
     [Range(1, 100)] 
-    public int PageSize { get; set; } = 10;
+    public int PageSize { get; set; } = 20;
     
     public string? SortBy { get; set; } ="Id"; 
     public bool SortDesc { get; set; } = false;

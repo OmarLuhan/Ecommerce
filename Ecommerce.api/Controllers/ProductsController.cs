@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Text.Json;
 using Ecommerce.api.Dto;
@@ -119,24 +120,30 @@ public class ProductsController(IProductService service) : ControllerBase
          return StatusCode(500, response);
       }
    }
-   [HttpPut("Update")]
+   [HttpPut("{id:int}")]
    [ProducesResponseType(StatusCodes.Status204NoContent)]
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-   public async Task<IActionResult> UpdateProduct([FromBody] ProductUpdateDto product)
+   public async Task<IActionResult> UpdateProduct(int id,[FromBody] ProductUpdateDto product)
    {
+      Response<bool> response = new Response<bool>();
       try
       {
+         if (id != product.Id)
+         {
+            response.Status = HttpStatusCode.BadRequest;
+            response.Message = "Id mismatch";
+            response.Success = false;
+            return BadRequest(response);
+         }
          await service.UpdateAsync(product);
          return NoContent();
       }
       catch (Exception ex)
       {
-         return StatusCode(500, new
-         {
-            Status = HttpStatusCode.InternalServerError,
-            ex.Message,
-            Success = false
-         });
+         response.Status = HttpStatusCode.InternalServerError;
+         response.Message = ex.Message;
+         response.Success = false;
+         return StatusCode(500, response);
       }
       
    }
@@ -145,19 +152,26 @@ public class ProductsController(IProductService service) : ControllerBase
    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
    public async Task<IActionResult> DeleteProduct(int id)
    {
+      Response<bool> response = new Response<bool>();
       try
       {
          await service.DeleteAsync(id);
          return NoContent();
       }
+      catch (ValidationException ex)
+      {
+         response.Status = HttpStatusCode.BadRequest;
+         response.Message = ex.Message;
+         response.Success = false;
+         return BadRequest(response);
+      }
       catch (Exception ex)
       {
-         return StatusCode(500, new
-         {
-            Status = HttpStatusCode.InternalServerError,
-            ex.Message,
-            Success = false
-         });
+         response.Status = HttpStatusCode.InternalServerError;
+         response.Message = ex.Message;
+         response.Success = false;
+         
+         return StatusCode(500, response);
       }
    }
    

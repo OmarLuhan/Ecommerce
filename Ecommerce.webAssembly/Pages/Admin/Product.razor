@@ -121,16 +121,16 @@
     }
     private void OnCategoryChange(ChangeEventArgs e)
     {
-        Model.CategoryId = int.Parse(e.Value.ToString());
+        Model.CategoryId = int.Parse(e.Value?.ToString() ?? "0");
     }
     private async Task SaveProductAsync()
     {
-        bool result = true;
+        bool result = false;
         string message;
         if (Id != 0)
         {
             var response = await ProductService.UpdateAsync(Model);
-            if(response!.Success)
+            if(response.Success)
             {
                 message = "Product updated successfully";
                 result = true;

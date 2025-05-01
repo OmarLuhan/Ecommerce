@@ -16,7 +16,7 @@ public class CategoryService(HttpClient httpClient):ICategoryService
     public async Task<Response<List<CategoryDto>>?> ListAsync(string? search = null)
     {
         string query = string.IsNullOrWhiteSpace(search) ? "" : $"?search={Uri.EscapeDataString(search)}";
-        var response = await httpClient.GetFromJsonAsync<Response<List<CategoryDto>>>($"category/list{query}");
+        var response = await httpClient.GetFromJsonAsync<Response<List<CategoryDto>>>($"categories{query}");
         return response;
     }
 
@@ -24,27 +24,27 @@ public class CategoryService(HttpClient httpClient):ICategoryService
 
     public async Task<Response<CategoryDto>?> GetCategoryAsync(int id)
     {
-        var response = await httpClient.GetFromJsonAsync<Response<CategoryDto>>($"category/get/{id}");
+        var response = await httpClient.GetFromJsonAsync<Response<CategoryDto>>($"categories/{id}");
         return response;
     }
 
     public async Task<Response<CategoryDto>?> CreateAsync(CategoryDto model)
     {
-        var response = await httpClient.PostAsJsonAsync("category/add", model);
+        var response = await httpClient.PostAsJsonAsync("categories", model);
         Response<CategoryDto>? result =await response.Content.ReadFromJsonAsync<Response<CategoryDto>>();
         return result;
     }
 
     public async Task<Response<bool>?> UpdateAsync(CategoryDto model)
     {
-        var response = await httpClient.PutAsJsonAsync("category/update", model);
+        var response = await httpClient.PutAsJsonAsync("categories", model);
         Response<bool>? result =await response.Content.ReadFromJsonAsync<Response<bool>>();
         return result;
     }
 
     public async Task<Response<bool>?> DeleteAsync(int id)
     {
-        var response = await httpClient.DeleteFromJsonAsync<Response<bool>>($"category/delete/{id}");
+        var response = await httpClient.DeleteFromJsonAsync<Response<bool>>($"categories/{id}");
         return response;
     }
 }
