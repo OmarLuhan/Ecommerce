@@ -1,5 +1,4 @@
-create database DbEcommerce;
-use DbEcommerce;
+use ecommerce_db;
 create table Category(
 Id INT PRIMARY KEY AUTO_INCREMENT,
 Name VARCHAR(50) NOT NULL,
@@ -66,11 +65,11 @@ BEGIN
      set Id = LAST_INSERT_ID();
 END;
 
-call sp_create_product('sp name','este producto fue crado por un sp',
-                      1,22.2,21.1,100,'https://image',@newId);
-select @newId;
+-- call sp_create_product('sp name','este producto fue crado por un sp',
+                    --  1,22.2,21.1,100,'https://image',@newId);
+-- select @newId;
 
---insertamos un usuario para poder iniciar sesion
+-- insertamos un usuario para poder iniciar sesion
 
 insert into User(FullName,Email,Password,Role) values
 ('admin','admin@example.com','123','Admin');
